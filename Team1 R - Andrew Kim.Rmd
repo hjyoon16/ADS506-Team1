@@ -1,6 +1,8 @@
 ---
 title: "Team1 R - Andrew Kim"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -26,8 +28,24 @@ summary(Pothole_Requests)
 ```
 
 ```{r}
+#EDA
 #Sum of case record types
 Pothole_Requests %>% group_by(case_record_type) %>% summarise(total_count=n(),.groups = 'drop')
+```
+
+```{r}
+#Compute bar chart of "zipcode"
+ggplot(data = Pothole_Requests) + geom_bar(mapping = aes(x=zipcode))
+```
+
+```{r}
+#Compute bar chart of "council_district"
+ggplot(data = Pothole_Requests) + geom_bar(mapping = aes(x=council_district))
+```
+
+```{r}
+#Compute bar chart of "comm plane code"
+ggplot(data = Pothole_Requests) + geom_bar(mapping = aes(x=comm_plan_code))
 ```
 
 ```{r}
