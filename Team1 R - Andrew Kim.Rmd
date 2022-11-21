@@ -1,0 +1,57 @@
+---
+title: "Team1 R - Andrew Kim"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(fpp2)
+library(zoo)
+library(readr)
+library(dplyr)
+library(forecast)
+```
+
+```{r}
+Pothole_Requests <- read.csv("/Users/andre/OneDrive/Documents/ADS 506/get_it_done_pothole_requests_datasd_v1.csv")
+Pothole_Requests
+```
+
+```{r}
+str(Pothole_Requests)
+```
+
+```{r}
+summary(Pothole_Requests)
+```
+
+```{r}
+#Sum of case record types
+Pothole_Requests %>% group_by(case_record_type) %>% summarise(total_count=n(),.groups = 'drop')
+```
+
+```{r}
+#Rearrange the order of date_requested in chronological order
+Pothole_Requests <- Pothole_Requests[order(Pothole_Requests$date_requested), ]
+head(Pothole_Requests)
+```
+
+```{r}
+tail(Pothole_Requests)
+```
+
+```{r}
+#Compute case age days per year on pothole requests. Create time series.
+Pothole_Requests.ts <- ts(Pothole_Requests$case_age_days, start=c(2017, 1), end=c(2022, 11), freq=12)
+Pothole_Requests.ts
+```
+
+```{r}
+plot(Pothole_Requests.ts, xlab = "Year", ylab = "Case", ylim = c(1, 2000), bty = "l")
+```
+
+```{r}
+hist(Pothole_Requests$case_age_days, ylab="Frequency", xlab="Forecast Errors", bty="l")
+```
+
+
