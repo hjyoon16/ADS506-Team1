@@ -1,0 +1,159 @@
+---
+title: "Untitled"
+author: "Andrew Kim"
+date: "11/26/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(fpp2)
+library(zoo)
+library(readr)
+library(dplyr)
+library(forecast)
+set.seed(506)
+```
+
+```{r}
+Pothole_Requests <- read.csv("/Users/andre/OneDrive/Documents/ADS 506/get_it_done_pothole_requests_datasd_v1.csv")
+Pothole_Requests
+```
+
+```{r}
+Pothole_Requests$date <- as.Date(Pothole_Requests$date_requested)
+```
+
+```{r}
+str(Pothole_Requests)
+```
+
+```{r}
+summary(Pothole_Requests)
+```
+
+```{r}
+count(Pothole_Requests)
+```
+
+```{r}
+head(is.na(Pothole_Requests))
+```
+
+```{r}
+ggplot(data = Pothole_Requests) + geom_bar(mapping = aes(x=status))
+```
+
+__Since we are analyzing the most common areas that require pothole repairs, our primary variables of interest will be zip codes, council_district, and comm_plan_code.__
+
+```{r}
+# Zip Code Count
+Pothole_Requests %>% count(zipcode, sort = TRUE)
+```
+
+```{r}
+#Histogram of zip codes
+ggplot(data = Pothole_Requests) + geom_bar(mapping = aes(x=zipcode))
+```
+
+```{r}
+# Council district count
+Pothole_Requests %>% count(council_district, sort = TRUE)
+```
+
+```{r}
+# Histogram of council_district
+ggplot(Pothole_Requests) + geom_bar(mapping = aes(council_district))
+```
+
+```{r}
+#Comm_plan_code count
+Pothole_Requests %>% count(comm_plan_code, sort = TRUE)
+```
+
+```{r}
+# Histogram of comm_plan_code
+ggplot(Pothole_Requests) + geom_bar(mapping = aes(comm_plan_code))
+```
+
+```{r}
+#Rearrange the order of date_requested in chronological order
+Pothole_Requests <- Pothole_Requests[order(Pothole_Requests$date), ]
+head(Pothole_Requests)
+```
+
+```{r}
+tail(Pothole_Requests)
+```
+
+
+```{r}
+# Aggregate by date
+Pothole_Requests2 <- aggregate(Pothole_Requests$service_request_id, by=list(Pothole_Requests$date), FUN=length)
+names(Pothole_Requests2)[1] = "date"
+names(Pothole_Requests2)[2] = "count"
+Pothole_Requests2
+```
+
+```{r}
+# Group by month
+Pothole_Requests3 <- mutate(Pothole_Requests2, month = format(date, "%Y-%m"))
+Pothole_Requests3
+```
+
+```{r}
+# Aggregate date again
+Pothole_Requests4 <- aggregate.data.frame(Pothole_Requests3, by = list(Pothole_Requests3$month), FUN = length)
+Pothole_Requests4
+```
+
+```{r}
+# Subsetting into relevant months
+Pothole_Requests5 <- Pothole_Requests4[11:58,]
+Pothole_Requests5
+```
+
+```{r}
+# Create Time Series
+Pothole_Requests.ts <- ts(Pothole_Requests5$count, start = c(2018, 12), end = c(2022, 10), frequency = 12)
+Pothole_Requests.ts
+```
+
+```{r}
+# Time Series plot graph
+plot(Pothole_Requests.ts, xlab = "Year", ylab = "Number of Pothole Repair Cases")
+```
+
+```{r}
+#Linear regression
+Pothole_Requests_lr <- tslm(Pothole_Requests.ts ~ trend)
+plot(Pothole_Requests.ts, xlab = "Year", ylab = "Number of Pothole Repair Cases")
+lines(Pothole_Requests_lr$fitted.values, col = "blue")
+```
+
+```{r}
+#Moving Average
+Pothole_Requests.MA <- forecast::ma(Pothole_Requests.ts, order=13, centre=TRUE)
+plot(Pothole_Requests.ts)
+lines(Pothole_Requests.MA, col="red", lwd=3)
+```
+
+```{r}
+#Arima
+Pothole_Requests.arima <- arima(Pothole_Requests.ts, order = c(1, 1, 3))
+summary(Pothole_Requests.arima)
+```
+
+```{r}
+#ACF
+acf(Pothole_Requests.ts)
+```
+
+```{r}
+Pothole_Requests_D <- diff(Pothole_Requests.ts, differences=2)
+plot(Pothole_Requests_D, ylab = expression(paste(nabla^2, "Cases"[2])))
+```
+
+__ARIMA or Moving Average. Compute both or decipher after EDA/pre-processing phase. Look also into rolling mean. Differencing. Linear regression/modeling. ACF Plots.__
