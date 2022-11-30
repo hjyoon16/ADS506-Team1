@@ -123,3 +123,16 @@ ph_ets <- ets(train_ts, model = "ANN")
 ets_pred <- forecast(ph_ets, 5)
 accuracy(ets_pred$mean, valid_ts)
 ```
+
+Visualization
+
+```{r}
+autoplot(train_ts) +
+  autolayer(valid_ts) +
+  autolayer(naive_pred$mean) +
+  autolayer(mean_pred$mean) +
+  autolayer(lm_pred$mean) +
+  autolayer(drift_pred$mean) +
+  autolayer(arima_pred$mean) +
+  autolayer(ets_pred$mean)
+```
