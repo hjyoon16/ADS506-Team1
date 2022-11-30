@@ -155,5 +155,3 @@ acf(Pothole_Requests.ts)
 Pothole_Requests_D <- diff(Pothole_Requests.ts, differences=2)
 plot(Pothole_Requests_D, ylab = expression(paste(nabla^2, "Cases"[2])))
 ```
-
-__ARIMA or Moving Average. Compute both or decipher after EDA/pre-processing phase. Look also into rolling mean. Differencing. Linear regression/modeling. ACF Plots.__
